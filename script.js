@@ -1,9 +1,15 @@
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Fully Loaded');
     initTheme();
     initProjects();
     initEventListeners();
+    initializeProjectCards();
     initScrollAnimations();
+    setupProjectNavigation();
+    
+    // Additional debug check
+    setTimeout(debugNavigation, 1000);
 });
 
 // Theme functionality
@@ -18,37 +24,107 @@ function initTheme() {
 const projects = [
     {
         id: 1,
-        title: "E-commerce Platform",
+        title: "Analytics Dashboard",
+        description: "Real-time analytics dashboard providing comprehensive business insights through interactive visualizations.",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800",
+        technologies: ["Vue.js", "D3.js", "Firebase"],
         category: "web",
-        image: "https://via.placeholder.com/400x300",
-        description: "A full-featured e-commerce platform built with MERN stack.",
-        technologies: ["React", "Node.js", "MongoDB", "Express"],
-        link: "#"
+        link: "project-analytics-dashboard.html"
     },
     {
         id: 2,
-        title: "Mobile Banking App",
-        category: "mobile",
-        image: "https://via.placeholder.com/400x300",
-        description: "Secure mobile banking application with real-time transactions.",
-        technologies: ["React Native", "Firebase", "Node.js"],
-        link: "#"
+        title: "Healthcare Management System",
+        description: "Comprehensive healthcare management system for hospitals and clinics with patient records and appointment scheduling.",
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
+        technologies: ["Angular", "Python", "PostgreSQL"],
+        category: "web",
+        link: "project-healthcare-management.html"
     },
     {
         id: 3,
-        title: "AI Image Recognition",
-        category: "ai",
-        image: "https://via.placeholder.com/400x300",
-        description: "Machine learning model for image classification.",
-        technologies: ["Python", "TensorFlow", "OpenCV"],
-        link: "#"
+        title: "Food Delivery App",
+        description: "Mobile application for food ordering and delivery with real-time tracking and payment integration.",
+        image: "https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=800",
+        technologies: ["React Native", "Node.js", "MongoDB"],
+        category: "mobile",
+        link: "project-food-delivery.html"
+    },
+    {
+        id: 4,
+        title: "E-commerce Platform",
+        description: "Full-featured e-commerce platform with inventory management, payment processing, and analytics.",
+        image: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800",
+        technologies: ["React", "Node.js", "MongoDB"],
+        category: "web",
+        link: "project-ecommerce.html"
     }
 ];
 
+// Debug function to help diagnose navigation issues
+function debugNavigation() {
+    console.log('Debug: Project Navigation Check');
+    console.log('Current URL:', window.location.href);
+    console.log('Project Files in Directory:');
+    const projectFiles = [
+        'project-analytics-dashboard.html',
+        'project-healthcare-management.html',
+        'project-food-delivery.html',
+        'project-ecommerce.html'
+    ];
+    
+    projectFiles.forEach(file => {
+        const fullPath = new URL(file, window.location.href).href;
+        fetch(fullPath)
+            .then(response => {
+                console.log(`File ${file}: ${response.ok ? 'EXISTS' : 'NOT FOUND'}`, fullPath);
+            })
+            .catch(error => {
+                console.error(`Error checking ${file}:`, error);
+            });
+    });
+}
+
+// Enhanced navigation handler
+function setupProjectNavigation() {
+    console.log('Setting up project navigation');
+    const projectLinks = document.querySelectorAll('.projects .project-card .btn.primary');
+    
+    if (projectLinks.length === 0) {
+        console.error('No project links found!');
+        return;
+    }
+
+    projectLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            
+            console.group('Project Link Click');
+            console.log('Clicked href:', href);
+            console.log('Current base URL:', window.location.origin);
+            console.log('Full navigation URL:', new URL(href, window.location.href).href);
+            
+            try {
+                // Use window.location.assign for more robust navigation
+                window.location.href = href;
+            } catch (error) {
+                console.error('Navigation error:', error);
+                alert(`Unable to navigate to ${href}. Please check the file path.`);
+            }
+            console.groupEnd();
+        });
+    });
+}
+
 // Initialize projects
 function initProjects() {
+    console.log('Initializing Projects');
     const projectsGrid = document.querySelector('.projects-grid');
-    if (!projectsGrid) return;
+    if (!projectsGrid) {
+        console.error('Projects grid not found during initialization!');
+        debugNavigation();
+        return;
+    }
 
     // Add filter buttons click handlers
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -69,6 +145,10 @@ function initProjects() {
 // Filter projects by category
 function filterProjects(category) {
     const projectsGrid = document.querySelector('.projects-grid');
+    if (!projectsGrid) {
+        console.error('Projects grid not found!');
+        return;
+    }
     projectsGrid.innerHTML = '';
     
     const filteredProjects = category === 'all' 
@@ -76,21 +156,27 @@ function filterProjects(category) {
         : projects.filter(project => project.category === category);
     
     filteredProjects.forEach(project => {
-        const projectCard = `
-            <div class="project-card fade-in" data-category="${project.category}">
-                <img src="${project.image}" alt="${project.title}">
-                <div class="project-info">
-                    <h3>${project.title}</h3>
-                    <p>${project.description}</p>
-                    <div class="tech-stack">
-                        ${project.technologies.map(tech => `<span>${tech}</span>`).join('')}
-                    </div>
-                    <a href="${project.link}" class="btn primary">View Project</a>
+        const projectCard = document.createElement('div');
+        projectCard.className = `project-card fade-in`;
+        projectCard.setAttribute('data-category', project.category);
+        
+        projectCard.innerHTML = `
+            <img src="${project.image}" alt="${project.title}">
+            <div class="project-info">
+                <h3>${project.title}</h3>
+                <p>${project.description}</p>
+                <div class="tech-stack">
+                    ${project.technologies.map(tech => `<span>${tech}</span>`).join('')}
                 </div>
+                <a href="${project.link}" class="btn primary">View Project</a>
             </div>
         `;
-        projectsGrid.innerHTML += projectCard;
+        
+        projectsGrid.appendChild(projectCard);
     });
+
+    // Call setup after rendering projects
+    setupProjectNavigation();
 }
 
 // Initialize event listeners
