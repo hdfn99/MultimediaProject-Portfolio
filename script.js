@@ -313,51 +313,62 @@ const teamMembers = {
     // Add data for other team members similarly
 };
 
-// Open modal with member details
-function openMemberModal(memberId) {
-    const member = teamMembers[memberId];
-    if (!member) return;
+// Function to populate member modal project highlights
+function populateMemberModalProjects(memberId, projects) {
+    const modal = document.getElementById(memberId);
+    if (!modal) return;
 
-    const content = `
-        <div class="member-profile">
-            <div class="profile-header">
-                <img src="https://via.placeholder.com/300" alt="${member.name}">
-                <h2>${member.name}</h2>
-                <p class="role">${member.role}</p>
-            </div>
-            <div class="profile-body">
-                <div class="bio">
-                    <h3>About</h3>
-                    <p>${member.bio}</p>
-                </div>
-                <div class="skills">
-                    <h3>Skills</h3>
-                    <div class="skills-list">
-                        ${member.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+    const projectsGrid = modal.querySelector('.projects-grid');
+    if (!projectsGrid) return;
+
+    // Clear existing projects
+    projectsGrid.innerHTML = '';
+
+    // Define project mapping for each member (you can customize this)
+    const memberProjects = {
+        'modal1': ['E-commerce Platform', 'Analytics Dashboard'],
+        'modal2': ['Food Delivery App', 'Mobile App Development'],
+        'modal3': ['Healthcare Management System', 'API Development'],
+        'modal4': ['Frontend Web App', 'Responsive Design Project'],
+        'modal5': ['UI/UX Design Project', 'E-commerce Redesign'],
+        'modal6': ['DevOps Infrastructure', 'Cloud Migration']
+    };
+
+    const projectTitles = memberProjects[memberId] || [];
+
+    projectTitles.forEach(title => {
+        // Find matching project from main projects array
+        const project = projects.find(p => p.title.includes(title));
+        
+        if (project) {
+            const projectCard = document.createElement('div');
+            projectCard.className = 'project-card';
+            projectCard.innerHTML = `
+                <img src="${project.image}" alt="${project.title}">
+                <div class="project-info">
+                    <h4>${project.title}</h4>
+                    <p>${project.description}</p>
+                    <div class="project-links">
+                        <a href="${project.link}" target="_blank">View Project</a>
                     </div>
                 </div>
-                <div class="projects">
-                    <h3>Projects</h3>
-                    ${member.projects.map(project => `
-                        <div class="project-card">
-                            <h4>${project.name}</h4>
-                            <p>${project.description}</p>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="social-links">
-                    <a href="${member.social.github}" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="${member.social.linkedin}" target="_blank"><i class="fab fa-linkedin"></i></a>
-                    <a href="${member.social.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>
-                </div>
-            </div>
-        </div>
-    `;
+            `;
+            projectsGrid.appendChild(projectCard);
+        }
+    });
+}
 
-    const modal = document.getElementById('memberModal');
-    const modalContent = modal.querySelector('.profile-content');
-    modalContent.innerHTML = content;
-    openModal('memberModal');
+// Modify openMemberModal to include project population
+function openMemberModal(memberId) {
+    const modal = document.getElementById(memberId);
+    if (!modal) return;
+
+    // Populate projects before showing modal
+    populateMemberModalProjects(memberId, projects);
+
+    // Show modal
+    modal.style.display = 'block';
+    document.body.classList.add('modal-open');
 }
 
 // Add click event listeners to team members
