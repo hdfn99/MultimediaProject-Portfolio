@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initProjects();
     initEventListeners();
+    initScrollAnimations();
 });
 
 // Theme functionality
@@ -325,6 +326,21 @@ document.addEventListener('click', (e) => {
         });
     }
 });
+
+// Add scroll-based animations
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__animated', entry.target.dataset.animation);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('[data-animation]').forEach((element) => {
+        observer.observe(element);
+    });
+}
 
 // Performance optimizations
 document.addEventListener('DOMContentLoaded', () => {
